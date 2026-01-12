@@ -2,93 +2,92 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-<title>苹果手机统计</title>
+<title>苹果手机购买统计</title>
 
 <style>
-body {
-  font-family: system-ui;
-  background: #f5f5f7;
+body{
+  font-family:system-ui;
+  background:#f5f5f7;
 }
-.app {
-  max-width: 540px;
-  margin: auto;
-  background: #fff;
-  padding: 16px;
-  border-radius: 16px;
+.app{
+  max-width:540px;
+  margin:auto;
+  background:#fff;
+  padding:16px;
+  border-radius:16px;
 }
-.item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 6px;
+.item{
+  display:flex;
+  align-items:center;
+  margin-bottom:6px;
 }
-.item span {
-  flex: 1;
-  font-size: 14px;
+.item span{
+  flex:1;
+  font-size:14px;
 }
-.final {
-  width: 55px;
-  padding: 4px;
-  color: red;
-  font-weight: bold;
+.final{
+  width:55px;
+  padding:4px;
+  color:red;
+  font-weight:bold;
 }
-.pm {
-  width: 70px;
-  padding: 4px;
-  color: #007aff;
+.pm{
+  width:70px;
+  padding:4px;
+  color:#007aff;
 }
-.pm-btn {
-  width: 26px;
-  height: 26px;
-  margin-left: 2px;
-  border: none;
-  border-radius: 6px;
-  font-size: 16px;
-  background: #e5e5ea;
+.pm-btn{
+  width:26px;
+  height:26px;
+  margin-left:2px;
+  border:none;
+  border-radius:6px;
+  background:#e5e5ea;
+  font-size:16px;
 }
-button.main {
-  width: 100%;
-  margin-top: 10px;
-  padding: 10px;
-  border: none;
-  border-radius: 12px;
-  background: #007aff;
-  color: white;
-  font-size: 16px;
+button.main{
+  width:100%;
+  margin-top:10px;
+  padding:10px;
+  border:none;
+  border-radius:12px;
+  background:#007aff;
+  color:white;
+  font-size:16px;
 }
-button.danger {
-  background: #ff3b30;
+button.danger{background:#ff3b30;}
+pre{
+  background:#f0f0f0;
+  padding:10px;
+  border-radius:12px;
+  font-size:13px;
 }
-pre {
-  background: #f0f0f0;
-  padding: 10px;
-  border-radius: 12px;
-  font-size: 13px;
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
 }
-.red { color: red; font-weight: bold; }
-.blue { color: #007aff; }
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
+th,td{
+  border-bottom:1px solid #ddd;
+  padding:6px;
+  text-align:center;
 }
-th, td {
-  border-bottom: 1px solid #ddd;
-  padding: 6px;
-  text-align: center;
-}
-.action { color: #007aff; cursor: pointer; }
-.delete { color: #ff3b30; margin-left: 6px; }
+.action{color:#007aff;cursor:pointer;}
+.delete{color:#ff3b30;margin-left:6px;}
+.red{color:red;font-weight:bold;}
 </style>
 </head>
 
 <body>
-
 <div class="app">
+
 <h2>📱 苹果手机购买统计</h2>
 
+<!-- 🔽 统计列表 -->
 <div id="list"></div>
 
-<input id="remark" placeholder="备注" style="width:100%;padding:8px;margin:8px 0;">
+<input id="remark" placeholder="备注"
+ style="width:100%;padding:8px;margin:8px 0;">
 
 <button class="main" onclick="save()">统计并保存</button>
 <button class="main danger" onclick="clearAll()">清空历史</button>
@@ -99,14 +98,20 @@ th, td {
 <h3>🕒 历史记录</h3>
 <table>
 <thead>
-<tr><th>时间</th><th>备注</th><th>总计</th><th>操作</th></tr>
+<tr>
+  <th>时间</th>
+  <th>备注</th>
+  <th>总计</th>
+  <th>操作</th>
+</tr>
 </thead>
 <tbody id="history"></tbody>
 </table>
+
 </div>
 
 <script>
-const items = [
+const items=[
 ["Max 256 silver","Max"],["Max256blue","Max"],["Max256orange","Max"],
 ["Max 512 silver","Max"],["Max 512 blue","Max"],["Max 512 orange","Max"],
 ["Max 1TB silver","Max"],["Max 1TB orange","Max"],["Max 1TB blue","Max"],
@@ -115,6 +120,11 @@ const items = [
 ["17 256white","17"],["17 256black","17"],["17 256 blue","17"],
 ["17 256 lavender","17"],["17 256 sage","17"]
 ];
+
+const listEl = document.getElementById("list");
+const historyEl = document.getElementById("history");
+const resultEl = document.getElementById("result");
+const remarkEl = document.getElementById("remark");
 
 let history = JSON.parse(localStorage.getItem("appleHistory")||"[]");
 
@@ -130,7 +140,7 @@ function renderList(){
   <button class="pm-btn" onclick="add('${l}',-1)">－</button>
 </div>`;
   });
-  list.innerHTML=html;
+  listEl.innerHTML=html;
 }
 
 function add(label,n){
@@ -157,18 +167,22 @@ Max 合计：${sum.Max}
 Pro 合计：${sum.Pro}
 17 合计：${sum["17"]}
 总计：${total}`;
-  const r={time:new Date().toLocaleString(),remark:remark.value||"-",total,text};
+  const r={
+    time:new Date().toLocaleString(),
+    remark:remarkEl.value||"-",
+    total,text
+  };
   history.unshift(r);
   localStorage.setItem("appleHistory",JSON.stringify(history));
-  result.innerText=text;
-  remark.value="";
+  resultEl.innerText=text;
+  remarkEl.value="";
   renderHistory();
 }
 
 function renderHistory(){
-  historyBody.innerHTML="";
+  historyEl.innerHTML="";
   history.forEach((r,i)=>{
-    historyBody.innerHTML+=`
+    historyEl.innerHTML+=`
 <tr>
 <td>${r.time}</td>
 <td>${r.remark}</td>
@@ -176,31 +190,31 @@ function renderHistory(){
 <td>
 <span class="action" onclick="view(${i})">查看</span>
 <span class="action delete" onclick="del(${i})">删除</span>
-</td></tr>`;
+</td>
+</tr>`;
   });
 }
 
-function view(i){ result.innerText=history[i].text; }
+function view(i){resultEl.innerText=history[i].text;}
 function del(i){
-  if(confirm("删除？")){
+  if(confirm("确定删除？")){
     history.splice(i,1);
     localStorage.setItem("appleHistory",JSON.stringify(history));
     renderHistory();
-    result.innerText="";
+    resultEl.innerText="";
   }
 }
 function clearAll(){
-  if(confirm("清空全部？")){
+  if(confirm("确定清空全部？")){
     history=[];
     localStorage.removeItem("appleHistory");
     renderHistory();
-    result.innerText="";
+    resultEl.innerText="";
   }
 }
 
 renderList();
 renderHistory();
 </script>
-
 </body>
 </html>
