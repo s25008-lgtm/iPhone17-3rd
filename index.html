@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>苹果手机统计</title>
+
+<style>
+body {
+  font-family: system-ui;
+  background: #f5f5f7;
+}
+.app {
+  max-width: 540px;
+  margin: auto;
+  background: #fff;
+  padding: 16px;
+  border-radius: 16px;
+}
+.item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.item span {
+  flex: 1;
+  font-size: 14px;
+}
+.final {
+  width: 55px;
+  padding: 4px;
+  color: red;
+  font-weight: bold;
+}
+.pm {
+  width: 70px;
+  padding: 4px;
+  color: #007aff;
+}
+.pm-btn {
+  width: 26px;
+  height: 26px;
+  margin-left: 2px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  background: #e5e5ea;
+}
+button.main {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+  border: none;
+  border-radius: 12px;
+  background: #007aff;
+  color: white;
+  font-size: 16px;
+}
+button.danger {
+  background: #ff3b30;
+}
+pre {
+  background: #f0f0f0;
+  padding: 10px;
+  border-radius: 12px;
+  font-size: 13px;
+}
+.red { color: red; font-weight: bold; }
+.blue { color: #007aff; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+th, td {
+  border-bottom: 1px solid #ddd;
+  padding: 6px;
+  text-align: center;
+}
+.action { color: #007aff; cursor: pointer; }
+.delete { color: #ff3b30; margin-left: 6px; }
+</style>
+</head>
+
+<body>
+
+<div class="app">
+<h2>📱 苹果手机购买统计</h2>
+
+<div id="list"></div>
+
+<input id="remark" placeholder="备注" style="width:100%;padding:8px;margin:8px 0;">
+
+<button class="main" onclick="save()">统计并保存</button>
+<button class="main danger" onclick="clearAll()">清空历史</button>
+
+<h3>📄 本次统计</h3>
+<pre id="result"></pre>
+
+<h3>🕒 历史记录</h3>
+<table>
+<thead>
+<tr><th>时间</th><th>备注</th><th>总计</th><th>操作</th></tr>
+</thead>
+<tbody id="history"></tbody>
+</table>
+</div>
+
+<script>
+const items = [
+["Max 256 silver","Max"],["Max256blue","Max"],["Max256orange","Max"],
+["Max 512 silver","Max"],["Max 512 blue","Max"],["Max 512 orange","Max"],
+["Max 1TB silver","Max"],["Max 1TB orange","Max"],["Max 1TB blue","Max"],
+["Pro 256 silver","Pro"],["Pro256blue","Pro"],["Pro256orange","Pro"],
+["Pro 512 silver","Pro"],["Pro 512 orange","Pro"],["Pro 512 blue","Pro"],
+["17 256white","17"],["17 256black","17"],["17 256 blue","17"],
+["17 256 lavender","17"],["17 256 sage","17"]
+];
+
+let history = JSON.parse(localStorage.getItem("appleHistory")||"[]");
+
+function renderList(){
+  let html="";
+  items.forEach(([l])=>{
+    html+=`
+<div class="item">
+  <span>${l} ×</span>
+  <input class="final" data-l="${l}" placeholder="0">
+  <input class="pm" data-l="${l}" placeholder="+1 -1">
+  <button class="pm-btn" onclick="add('${l}',1)">＋</button>
+  <button class="pm-btn" onclick="add('${l}',-1)">－</button>
+</div>`;
+  });
+  list.innerHTML=html;
+}
+
+function add(label,n){
+  const f=document.querySelector(\`.final[data-l="\${label}"]\`);
+  f.value=(Number(f.value)||0)+n;
+}
+
+function pmValue(t){
+  const m=t.match(/[+-]\d+/g);
+  return m?m.reduce((s,n)=>s+Number(n),0):0;
+}
+
+function save(){
+  let sum={Max:0,Pro:0,"17":0},total=0,text="";
+  items.forEach(([l,g])=>{
+    const f=document.querySelector(\`.final[data-l="\${l}"]\`).value;
+    const p=document.querySelector(\`.pm[data-l="\${l}"]\`).value;
+    const v=f!==""?Number(f):pmValue(p);
+    sum[g]+=v; total+=v;
+    text+=`${l} ×${v||""}\n`;
+  });
+  text+=`———
+Max 合计：${sum.Max}
+Pro 合计：${sum.Pro}
+17 合计：${sum["17"]}
+总计：${total}`;
+  const r={time:new Date().toLocaleString(),remark:remark.value||"-",total,text};
+  history.unshift(r);
+  localStorage.setItem("appleHistory",JSON.stringify(history));
+  result.innerText=text;
+  remark.value="";
+  renderHistory();
+}
+
+function renderHistory(){
+  historyBody.innerHTML="";
+  history.forEach((r,i)=>{
+    historyBody.innerHTML+=`
+<tr>
+<td>${r.time}</td>
+<td>${r.remark}</td>
+<td class="red">${r.total}</td>
+<td>
+<span class="action" onclick="view(${i})">查看</span>
+<span class="action delete" onclick="del(${i})">删除</span>
+</td></tr>`;
+  });
+}
+
+function view(i){ result.innerText=history[i].text; }
+function del(i){
+  if(confirm("删除？")){
+    history.splice(i,1);
+    localStorage.setItem("appleHistory",JSON.stringify(history));
+    renderHistory();
+    result.innerText="";
+  }
+}
+function clearAll(){
+  if(confirm("清空全部？")){
+    history=[];
+    localStorage.removeItem("appleHistory");
+    renderHistory();
+    result.innerText="";
+  }
+}
+
+renderList();
+renderHistory();
+</script>
+
+</body>
+</html>
